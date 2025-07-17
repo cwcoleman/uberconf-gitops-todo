@@ -28,7 +28,7 @@ jobs:
             - name: Build Docker image
               id: set-version
               run: |
-                  IMAGE_NAME="dhinojosa/gitops-todo"
+                  IMAGE_NAME="cwcoleman/uberconf-gitops-todo"
                   VERSION=$(date +'%Y.%m.%d.%H%M%S') # Version based on timestamp
                   docker build -t $IMAGE_NAME:$VERSION .
                   echo "::set-output name=version::$VERSION"
@@ -36,7 +36,7 @@ jobs:
             # Step 4: Push the Docker image
             - name: Push Docker image to Docker Hub
               run: |
-                  IMAGE_NAME="dhinojosa/gitops-todo"
+                  IMAGE_NAME="cwcoleman/uberconf-gitops-todo"
                   docker push $IMAGE_NAME:${{ steps.set-version.outputs.version }}
 
     update-config:
@@ -48,7 +48,7 @@ jobs:
             - name: Checkout gitops-todo-config repository
               uses: actions/checkout@v3
               with:
-                  repository: dhinojosa/gitops-todo-config
+                  repository: cwcoleman/uberconf-gitops-todo-config
                   token: ${{ secrets.GH_TOKEN }}
                   ref: main
 
@@ -66,7 +66,7 @@ jobs:
                     echo "Error: Staging patch file does not exist."
                     exit 1
                   fi
-                  sed -i "s|image: .*|image: dhinojosa/gitops-todo:${{ needs.build-and-push.outputs.version }}|g" $PATCH_FILE
+                  sed -i "s|image: .*|image: cwcoleman/uberconf-gitops-todo:${{ needs.build-and-push.outputs.version }}|g" $PATCH_FILE
 
             # Step 4: Debug View patch file after changes
             - name: Debug View patch file after changes
@@ -83,7 +83,7 @@ jobs:
                   git config user.email "actions@github.com"
                   git add overlays/staging/patch-deployment.yaml
                   git commit -m "Update image version to ${{ needs.build-and-push.outputs.version }} for staging" || echo "No changes to commit"
-                  git push https://x-access-token:${TOKEN}@github.com/dhinojosa/gitops-todo-config.git HEAD:main
+                  git push https://x-access-token:${TOKEN}@github.com/cwcoleman/uberconf-gitops-todo-config.git HEAD:main
 
     notify-success:
         needs: update-config
@@ -91,4 +91,4 @@ jobs:
 
         steps:
             - name: Success Message
-              run: echo "Docker image built and deployed successfully. Configuration updated in gitops-todo-config."
+              run: echo "Docker image built and deployed successfully. Configuration updated in uberconf-gitops-todo-config."
